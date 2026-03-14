@@ -1,7 +1,7 @@
 export class Logger {
     constructor(private context: string) {}
 
-    info(message: string, data?: any): void {
+    info(message: string, data?: unknown): void {
         console.log(
             JSON.stringify({
                 level: "INFO",
@@ -13,7 +13,7 @@ export class Logger {
         );
     }
 
-    warn(message: string, data?: any): void {
+    warn(message: string, data?: unknown): void {
         console.warn(
             JSON.stringify({
                 level: "WARN",
@@ -25,7 +25,7 @@ export class Logger {
         );
     }
 
-    error(message: string, error?: any): void {
+    error(message: string, error?: unknown): void {
         console.error(
             JSON.stringify({
                 level: "ERROR",
@@ -43,7 +43,7 @@ export class Logger {
         );
     }
 
-    debug(message: string, data?: any): void {
+    debug(message: string, data?: unknown): void {
         if (process.env.NODE_ENV !== "production") {
             console.debug(
                 JSON.stringify({

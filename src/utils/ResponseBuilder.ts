@@ -3,7 +3,7 @@ import { APIGatewayProxyResult } from "aws-lambda";
 export class ResponseBuilder {
     private static buildResponse(
         statusCode: number,
-        body: any,
+        body: unknown,
         isJson: boolean = true
     ): APIGatewayProxyResult {
         return {
@@ -13,15 +13,15 @@ export class ResponseBuilder {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Credentials": true,
             },
-            body: isJson ? JSON.stringify(body) : body,
+            body: isJson ? JSON.stringify(body) : (body as string),
         };
     }
 
-    static success(data: any, isJson: boolean = true): APIGatewayProxyResult {
+    static success(data: unknown, isJson: boolean = true): APIGatewayProxyResult {
         return this.buildResponse(200, data, isJson);
     }
 
-    static created(data: any): APIGatewayProxyResult {
+    static created(data: unknown): APIGatewayProxyResult {
         return this.buildResponse(201, data);
     }
 
@@ -53,7 +53,7 @@ export class ResponseBuilder {
         });
     }
 
-    static error(error: any): APIGatewayProxyResult {
+    static error(error: unknown): APIGatewayProxyResult {
         const message = error instanceof Error ? error.message : "Erro interno do servidor";
 
         return this.buildResponse(500, {
