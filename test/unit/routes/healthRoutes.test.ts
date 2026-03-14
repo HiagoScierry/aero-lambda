@@ -3,24 +3,24 @@ import { healthRoutes } from "../../../src/routes/healthRoutes";
 import { APIGatewayProxyEvent } from "aws-lambda";
 
 describe("HealthRoutes", () => {
-	let router: Router;
+    let router: Router;
 
-	beforeEach(() => {
-		router = new Router();
-		healthRoutes(router);
-	});
+    beforeEach(() => {
+        router = new Router();
+        healthRoutes(router);
+    });
 
-	it("should respond to GET /health", async () => {
-		const event: Partial<APIGatewayProxyEvent> = {
-			httpMethod: "GET",
-			path: "/health",
-		};
+    it("should respond to GET /health", async () => {
+        const event: Partial<APIGatewayProxyEvent> = {
+            httpMethod: "GET",
+            path: "/health",
+        };
 
-		const result = await router.handle(event as APIGatewayProxyEvent);
+        const result = await router.handle(event as APIGatewayProxyEvent);
 
-		expect(result.statusCode).toBe(200);
-		const body = JSON.parse(result.body);
-		expect(body.status).toBe("OK");
-		expect(body).toHaveProperty("timestamp");
-	});
+        expect(result.statusCode).toBe(200);
+        const body = JSON.parse(result.body);
+        expect(body.status).toBe("OK");
+        expect(body).toHaveProperty("timestamp");
+    });
 });
