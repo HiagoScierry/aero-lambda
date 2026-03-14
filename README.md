@@ -1,18 +1,25 @@
-# 🚀 Boilerplate API Lambda - High Performance & Lightweight
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/logo-dark.png">
+    <img alt="Aerolambda Logo" src="assets/logo.png" width="300">
+  </picture>
+</p>
 
-Este é um boilerplate minimalista e ultraleve para APIs rodando em AWS Lambda, desenvolvido com **TypeScript** e **Serverless Framework**. 
+# 🚀 Aerolambda - High Performance & Lightweight API Boilerplate
 
-Diferente de frameworks tradicionais como o Express, este projeto foi desenhado para ser **nativo para Lambda**, garantindo pacotes extremamente pequenos, custos reduzidos e os menores tempos de *Cold Start*.
+O **Aerolambda** é um boilerplate minimalista e ultraleve para APIs rodando em AWS Lambda, desenvolvido com **TypeScript** e **Serverless Framework**. 
 
-## 💡 Por que usar este Boilerplate?
+Diferente de frameworks tradicionais como o Express, o **Aerolambda** foi desenhado para ser **nativo para Lambda**, garantindo pacotes extremamente pequenos, custos reduzidos e os menores tempos de *Cold Start*.
+
+## 💡 Por que usar o Aerolambda?
 
 ### 📦 Ultraleve (Tiny Bundle Size)
 O pacote de deploy gerado (`dist`) tem **menos de 200KB**.
 - **Limite AWS Lambda**: 50MB (upload direto) / 250MB (descompactado).
-- **Vantagem**: Enquanto frameworks pesados e `node_modules` gigantes podem facilmente estourar esses limites ou degradar a performance, este boilerplate mantém seu projeto enxuto e escalável.
+- **Vantagem**: Enquanto frameworks pesados e `node_modules` gigantes podem facilmente estourar esses limites ou degradar a performance, o **Aerolambda** mantém seu projeto enxuto e escalável.
 
-### 📊 Comparativo: Este Boilerplate vs Express
-| Característica | Este Boilerplate | Express + serverless-http |
+### 📊 Comparativo: Aerolambda vs Express
+| Característica | Aerolambda | Express + serverless-http |
 | :--- | :--- | :--- |
 | **Tamanho do Bundle (aprox.)** | **~120 KB** | **~2 MB - 5 MB** |
 | **Dependências de Core** | 0 (Nativo) | 30+ (Express ecosystem) |
@@ -23,7 +30,7 @@ O pacote de deploy gerado (`dist`) tem **menos de 200KB**.
 > Em Lambdas, **tamanho é performance**. Pacotes menores carregam mais rápido e custam menos.
 
 ### ⚡ Performance Superior & Cold Starts Mínimos
-Ao evitar o overhead de roteadores pesados e middleware desnecessário, a função Lambda sobe e responde muito mais rápido. É ideal para APIs que precisam de baixa latência.
+Ao evitar o overhead de roteadores pesados e middleware desnecessário, o **Aerolambda** sobe e responde muito mais rápido. É ideal para APIs que precisam de baixa latência.
 
 ### 🏗️ Arquitetura Limpa e Espelhada
 Seguimos uma estrutura organizada que separa responsabilidades de forma clara:
