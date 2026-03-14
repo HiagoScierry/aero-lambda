@@ -42,17 +42,16 @@ export class Router {
 
     async handle(event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> {
         try {
-            const v2Event = event as unknown as { 
-                rawPath?: string; 
-                requestContext?: { 
-                    http?: { 
-                        path?: string; 
-                        method?: string; 
-                    } 
-                } 
+            const v2Event = event as unknown as {
+                rawPath?: string;
+                requestContext?: {
+                    http?: {
+                        path?: string;
+                        method?: string;
+                    };
+                };
             };
-            const path =
-                event.path || v2Event.rawPath || v2Event.requestContext?.http?.path || "/";
+            const path = event.path || v2Event.rawPath || v2Event.requestContext?.http?.path || "/";
             const method = event.httpMethod || v2Event.requestContext?.http?.method || "GET";
 
             this.logger.info("Routing request", { method, path });

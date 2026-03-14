@@ -26,18 +26,20 @@ export class Logger {
     }
 
     error(message: string, error?: unknown): void {
+        let errorData = error;
+        if (error instanceof Error) {
+            errorData = {
+                message: error.message,
+                stack: error.stack,
+            };
+        }
+
         console.error(
             JSON.stringify({
                 level: "ERROR",
                 context: this.context,
                 message,
-                error:
-                    error instanceof Error
-                        ? {
-                            message: error.message,
-                            stack: error.stack,
-                        }
-                        : error,
+                error: errorData,
                 timestamp: new Date().toISOString(),
             })
         );

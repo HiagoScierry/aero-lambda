@@ -75,7 +75,7 @@ npm run deploy
 
 ## 🛠️ Stack Tecnológica
 - **Linguagem**: TypeScript
-- **Runtime**: Node.js 18.x
+- **Runtime**: Node.js 24.x
 - **Infra**: Serverless Framework
 - **Testes**: Jest + ts-jest
 
