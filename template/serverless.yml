@@ -1,4 +1,4 @@
-service: boilerplate-api-lambda
+service: {{PROJECT_NAME}}
 
 useDotenv: true
 
