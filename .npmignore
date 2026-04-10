@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Git
+.git/
+.gitignore
+
+# Assets
+assets/
+
+# CI
+.github/
+
+# Docs
+README.md
+
+# Misc
+.DS_Store
+*.log
