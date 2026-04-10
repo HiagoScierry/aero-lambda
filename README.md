@@ -5,35 +5,47 @@
   </picture>
 </p>
 
-# 🚀 Aerolambda - High Performance & Lightweight API Boilerplate
+# Aerolambda - AWS Lambda Boilerplate
 
-O **Aerolambda** é um boilerplate minimalista e ultraleve para APIs e consumidores SQS rodando em AWS Lambda, desenvolvido com **TypeScript** e **Serverless Framework**.
+Boilerplate para construir APIs HTTP e consumidores SQS em AWS Lambda com **TypeScript** e **Serverless Framework**.
 
-Diferente de frameworks tradicionais como o Express, o **Aerolambda** foi desenhado para ser **nativo para Lambda**, garantindo pacotes extremamente pequenos, custos reduzidos e os menores tempos de *Cold Start*.
+Sem frameworks web tradicionais — o roteamento HTTP e o dispatcher de mensagens são implementados nativamente, mantendo o projeto enxuto e direto ao ponto.
 
-## 💡 Por que usar o Aerolambda?
+---
 
-### 📦 Ultraleve (Tiny Bundle Size)
-O pacote de deploy gerado (`dist`) tem **menos de 200KB**.
-- **Limite AWS Lambda**: 50MB (upload direto) / 250MB (descompactado).
-- **Vantagem**: Enquanto frameworks pesados e `node_modules` gigantes podem facilmente estourar esses limites ou degradar a performance, o **Aerolambda** mantém seu projeto enxuto e escalável.
+## Por que usar o Aerolambda?
 
-### 📊 Comparativo: Aerolambda vs Express
-| Característica | Aerolambda | Express + serverless-http |
+### Sem overhead de framework web
+
+Frameworks como Express foram projetados para servidores de longa duração. Em Lambda, cada invocação é isolada — carregar o ecossistema do Express (middleware, roteador, `serverless-http`) é custo sem benefício.
+
+O Aerolambda implementa roteamento HTTP e dispatcher SQS nativamente, trazendo apenas o que a aplicação realmente precisa.
+
+### Comparativo: Aerolambda vs Express
+
+| | Aerolambda | Express + serverless-http |
 | :--- | :--- | :--- |
-| **Tamanho do Bundle (aprox.)** | **~120 KB** | **~2 MB - 5 MB** |
-| **Dependências de Core** | 0 (Nativo) | 30+ (Express ecosystem) |
-| **Cold Start** | Ultrarápido (< 100ms) | Lento (Inércia de dependências) |
-| **Complexidade** | Simples e Direta | Alta (Overhead de middleware) |
+| **Código da aplicação (`dist/`)** | ~220 KB | ~220 KB |
+| **Dependências de framework** | Nenhuma | Express ecosystem (~2–5 MB) |
+| **AWS SDK v3** | Incluído quando usado | Incluído quando usado |
+| **Cold Start** | Menor (menos módulos para carregar) | Maior |
+| **Flexibilidade** | Total | Limitada pelo Express |
 
-> [!NOTE]  
-> Em Lambdas, **tamanho é performance**. Pacotes menores carregam mais rápido e custam menos.
+> O tamanho final do pacote deployado depende de quais clientes AWS SDK você importar. Cada cliente (`@aws-sdk/client-s3`, `@aws-sdk/client-dynamodb` etc.) adiciona entre 1–5 MB ao bundle. Use apenas os que seu projeto precisar.
 
-### ⚡ Performance Superior & Cold Starts Mínimos
-Ao evitar o overhead de roteadores pesados e middleware desnecessário, o **Aerolambda** sobe e responde muito mais rápido. É ideal para APIs que precisam de baixa latência.
+### Arquitetura de duas Lambdas independentes
 
-### 🏗️ Arquitetura Limpa e Espelhada
-Seguimos uma estrutura organizada que separa responsabilidades de forma clara:
+O projeto provisiona duas Lambdas via CloudFormation:
+
+| Lambda | Trigger | Handler |
+| :--- | :--- | :--- |
+| `api` | HTTP API Gateway | `src/index.handler` |
+| `sqsConsumer` | SQS (`MainQueue`) | `src/sqsHandler.handler` |
+
+Cada uma escala de forma independente, com timeout e memória configuráveis separadamente.
+
+### Estrutura espelhada entre `src/` e `test/`
+
 ```text
 src/                        test/unit/
 ├── aws/                    ├── core/
@@ -43,31 +55,24 @@ src/                        test/unit/
 ├── services/               └── repositories/
 └── repositories/
 ```
-Os testes espelham exatamente a estrutura do código-fonte, tornando a navegação intuitiva e a manutenção simples.
-
-### 🛡️ Qualidade & Pipeline Pronto
-O projeto já vem configurado com:
-- **Jest**: Testes unitários com cobertura.
-- **ESLint & Prettier**: Padronização de código.
-- **GitHub Actions**: Pipeline de qualidade (lint, type-check, tests) e deploy automatizado via `serverless deploy`.
 
 ---
 
-## 🚀 Como Começar
+## Como Começar
 
 ### Instalação
 ```bash
 npm install
 ```
 
-### Desenvolvimento Local (apenas HTTP)
+### Desenvolvimento local (apenas HTTP)
 ```bash
 npm run offline
 ```
 
-### Desenvolvimento Local (HTTP + SQS)
+### Desenvolvimento local (HTTP + SQS)
 
-Requer Docker para subir o ElasticMQ (SQS local):
+Requer Docker. Sobe ElasticMQ (SQS local) e LocalStack (DynamoDB, S3, SSM):
 ```bash
 npm run offline:sqs
 ```
@@ -82,11 +87,13 @@ npm test
 npm run deploy
 ```
 
+O deploy executa `serverless deploy`, que provisiona via CloudFormation toda a infraestrutura declarada no `serverless.yml`: Lambdas, filas SQS, DLQ, permissões IAM e variáveis de ambiente.
+
 ---
 
-## ⚡ Gerador de Código
+## Gerador de Código
 
-O Aerolambda vem com um gerador que cria toda a estrutura necessária com um único comando.
+Cria toda a estrutura necessária com um único comando — arquivos e registro automático no index.
 
 ### Nova rota CRUD
 
@@ -94,7 +101,7 @@ O Aerolambda vem com um gerador que cria toda a estrutura necessária com um ún
 npm run generate route Product
 ```
 
-Gera e registra automaticamente:
+Gera e registra:
 ```
 src/core/models/Product.ts
 src/repositories/ProductRepository.ts
@@ -110,54 +117,47 @@ test/unit/repositories/ProductRepository.test.ts
 npm run generate handler ORDER_PLACED
 ```
 
-Gera e registra automaticamente:
+Gera e registra:
 ```
 src/messages/handlers/order-placed.handler.ts
 test/unit/messages/order-placed.handler.test.ts
 ```
 
-> O `MessageProcessor` roteia a mensagem pelo campo `"type"` do body. Adicionar um novo tipo de mensagem não exige nenhuma mudança de infraestrutura — apenas gere o handler e implemente a lógica.
-
----
-
-## 🏛️ Arquitetura de Lambdas
-
-O projeto provisiona **duas Lambdas independentes** via CloudFormation no deploy:
-
-| Lambda | Trigger | Handler |
-| :--- | :--- | :--- |
-| `api` | HTTP API Gateway | `src/index.handler` |
-| `sqsConsumer` | SQS (`MainQueue`) | `src/sqsHandler.handler` |
-
-Cada Lambda escala de forma independente. A fila SQS (`MainQueue`) e sua DLQ são criadas automaticamente no deploy.
-
-### Fluxo SQS
+O `MessageProcessor` roteia a mensagem pelo campo `"type"` do body. Adicionar um novo tipo de mensagem não exige nenhuma mudança de infraestrutura.
 
 ```
-Mensagem SQS → { "type": "ORDER_PLACED", ... }
+Mensagem SQS → { "type": "ORDER_PLACED", "orderId": "123" }
                           ↓
                sqsHandler → MessageProcessor
                           ↓
                orderPlacedHandler()
 ```
 
-### Clientes AWS pré-configurados
+---
+
+## Clientes AWS pré-configurados
 
 ```typescript
 import { dynamodb, s3, sqs, ssm } from "./aws";
 ```
 
-Todos os clientes suportam endpoints locais via variáveis de ambiente (`DYNAMODB_ENDPOINT`, `S3_ENDPOINT`, `SQS_ENDPOINT`) para uso com LocalStack e ElasticMQ.
+Todos os clientes suportam endpoints locais via variáveis de ambiente para uso com LocalStack e ElasticMQ:
+
+| Variável | Cliente |
+| :--- | :--- |
+| `DYNAMODB_ENDPOINT` | DynamoDB Document Client |
+| `S3_ENDPOINT` | S3 Client (path-style habilitado) |
+| `SQS_ENDPOINT` | SQS Client |
+
+Importe apenas os clientes que seu projeto usar para manter o bundle enxuto.
 
 ---
 
-## 🛠️ Stack Tecnológica
+## Stack
 - **Linguagem**: TypeScript
 - **Runtime**: Node.js 24.x
 - **Infra**: Serverless Framework v3 + CloudFormation
 - **AWS SDK**: v3 (DynamoDB, S3, SQS, SSM)
 - **Testes**: Jest + ts-jest
+- **Qualidade**: ESLint + Prettier + GitHub Actions
 - **Local**: serverless-offline + ElasticMQ + LocalStack
-
----
-Desenvolvido para ser simples, eficiente e pronto para produção. 🚀
