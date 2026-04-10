@@ -1,0 +1,29 @@
+services:
+  elasticmq:
+    image: softwaremill/elasticmq-native:latest
+    container_name: elasticmq
+    ports:
+      - "9324:9324"
+      - "9325:9325"
+    volumes:
+      - ./elasticmq.conf:/opt/elasticmq.conf
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9325"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  localstack:
+    image: localstack/localstack:latest
+    container_name: localstack
+    ports:
+      - "4566:4566"
+    environment:
+      - SERVICES=dynamodb,s3,ssm
+      - DEFAULT_REGION=us-east-1
+      - AWS_DEFAULT_REGION=us-east-1
+    volumes:
+      - localstack_data:/var/lib/localstack
+
+volumes:
+  localstack_data:

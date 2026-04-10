@@ -13,6 +13,7 @@ provider:
   timeout: 30
   environment:
     NODE_ENV: ${env:NODE_ENV, 'development'}
+    MAIN_QUEUE_URL: !Ref MainQueue
   httpApi:
     cors: true
   iam:
@@ -25,6 +26,40 @@ provider:
             - logs:PutLogEvents
           Resource: '*'
 
+        - Effect: Allow
+          Action:
+            - sqs:SendMessage
+            - sqs:ReceiveMessage
+            - sqs:DeleteMessage
+            - sqs:GetQueueAttributes
+          Resource:
+            - !GetAtt MainQueue.Arn
+            - !GetAtt MainQueueDLQ.Arn
+
+        - Effect: Allow
+          Action:
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:Query
+            - dynamodb:Scan
+          Resource: 'arn:aws:dynamodb:${self:provider.region}:*:table/${self:service}-${self:provider.stage}-*'
+
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:DeleteObject
+          Resource: 'arn:aws:s3:::${self:service}-${self:provider.stage}-*/*'
+
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+            - ssm:GetParameters
+            - ssm:GetParametersByPath
+          Resource: 'arn:aws:ssm:${self:provider.region}:*:parameter/${self:service}/${self:provider.stage}/*'
+
 functions:
   api:
     handler: src/index.handler
@@ -36,11 +71,58 @@ functions:
           path: /
           method: ANY
 
+  sqsConsumer:
+    handler: src/sqsHandler.handler
+    events:
+      - sqs:
+          arn: !GetAtt MainQueue.Arn
+          batchSize: 10
+          functionResponseType: ReportBatchItemFailures
+
 plugins:
   - serverless-dotenv-plugin
   - serverless-plugin-typescript
   - serverless-offline
+  - serverless-offline-sqs
 
 custom:
   serverless-offline:
     httpPort: 3000
+
+  serverless-offline-sqs:
+    autoCreate: true
+    apiVersion: '2012-11-05'
+    endpoint: http://0.0.0.0:9324
+    region: us-east-1
+    accessKeyId: root
+    secretAccessKey: root
+    skipCacheInvalidation: false
+
+resources:
+  Resources:
+    MainQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-${self:provider.stage}-queue
+        VisibilityTimeout: 60
+        MessageRetentionPeriod: 86400
+        RedrivePolicy:
+          deadLetterTargetArn: !GetAtt MainQueueDLQ.Arn
+          maxReceiveCount: 3
+
+    MainQueueDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: ${self:service}-${self:provider.stage}-queue-dlq
+        MessageRetentionPeriod: 1209600
+
+  Outputs:
+    MainQueueUrl:
+      Value: !Ref MainQueue
+      Export:
+        Name: ${self:service}-${self:provider.stage}-main-queue-url
+
+    MainQueueArn:
+      Value: !GetAtt MainQueue.Arn
+      Export:
+        Name: ${self:service}-${self:provider.stage}-main-queue-arn

@@ -11,23 +11,31 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "start": "node dist/index.js",
     "offline": "serverless offline",
+    "offline:sqs": "docker compose up -d && serverless offline",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "type-check": "tsc --noEmit",
     "test": "jest",
+    "generate": "node scripts/generate.js",
     "deploy": "npm run build && serverless deploy"
   },
   "keywords": [
     "lambda",
     "serverless",
     "typescript",
-    "boilerplate"
+    "boilerplate",
+    "sqs"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.600.0",
+    "@aws-sdk/client-s3": "^3.600.0",
+    "@aws-sdk/client-sqs": "^3.600.0",
+    "@aws-sdk/client-ssm": "^3.600.0",
+    "@aws-sdk/lib-dynamodb": "^3.600.0",
     "aws-lambda": "^1.0.7",
     "axios": "^1.6.0"
   },
@@ -43,6 +51,7 @@
     "serverless": "^3.38.0",
     "serverless-dotenv-plugin": "^6.0.0",
     "serverless-offline": "^13.3.0",
+    "serverless-offline-sqs": "^8.0.0",
     "serverless-plugin-typescript": "^2.1.5",
     "ts-jest": "^29.1.0",
     "ts-node-dev": "^2.0.0",
